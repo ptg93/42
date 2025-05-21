@@ -3,7 +3,9 @@
 int	main(int argc, char *argv[], char *envp[])
 {
 	t_pipex data;
-	
+	char **cmd1;
+	char **cmd2;
+
 	if (argc != 5)
 		return (1);
 	data.infile = open(argv[1], O_RDONLY);
@@ -28,24 +30,26 @@ int	main(int argc, char *argv[], char *envp[])
 	{
 		dup2(data.infile, STDIN_FILENO);
 		dup2(data.pipe_fd[1], STDOUT_FILENO);
-        close(data.pipe_fd[0]);
-        close(data.infile);
-        close(data.outfile);
-        execve("/bin/ls", (char *[]){"ls", NULL}, envp);
-        exit(1);
+		close(data.pipe_fd[0]);
+		close(data.infile);
+		close(data.outfile);
+		cmd1 = ft_split(argv[2], ' ');
+		execve(get_path(cmd1[0], envp), cmd1, envp);
+		exit(1);
 	}
 	data.pid2 = fork();
 	if (data.pid2 < 0)
 		return (1);
 	if (data.pid2 == 0)
 	{
-	    dup2(data.pipe_fd[0], STDIN_FILENO);
-        dup2(data.outfile, STDOUT_FILENO);
-        close(data.pipe_fd[1]);
-        close(data.infile);
-        close(data.outfile);
-        execve("/usr/bin/wc", (char *[]){"wc", NULL}, envp);
-        exit(1);
+		dup2(data.pipe_fd[0], STDIN_FILENO);
+		dup2(data.outfile, STDOUT_FILENO);
+		close(data.pipe_fd[1]);
+		close(data.infile);
+		close(data.outfile);
+		cmd2 = ft_split(argv[3], ' ');
+		execve(get_path(cmd2[0], envp), cmd2, envp);
+		exit(1);
 	}
 	close(data.pipe_fd[0]);
     close(data.pipe_fd[1]);
