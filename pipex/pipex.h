@@ -12,11 +12,9 @@ typedef struct s_pipex
 {
     int     infile;
     int     outfile;
-    int     pipe_fd[2];
-    pid_t   pid1;
-    pid_t   pid2;
-    char    **cmd1;
-    char    **cmd2;
+    int     *pipe_fd[2];
+    pid_t   *pid;
+    char    **cmd;
     char    **envp;
 }           t_pipex;
 
