@@ -76,7 +76,7 @@ int	main(int argc, char *argv[], char *envp[])
 		return (1);
 	}
 	i = 0;
-	while (i < argc - 4)
+	while (i++ < argc - 4)
 	{
 		if (pipe(data.pipe_fd[i]) == -1)
 		{
@@ -121,16 +121,16 @@ int	main(int argc, char *argv[], char *envp[])
 				dup2(data.pipe_fd[i][1], STDOUT_FILENO);
 				close(data.infile);
 				close(data.outfile);
-				data.cmd = ft_split(argv[3], ' ');
+				data.cmd = ft_split(argv[i + 2], ' ');
 				execve(get_path(data.cmd[0], envp), data.cmd, envp);
 				exit(1);
 			}
 		}
 	}
-	close(data.pipe_fd[0]);
-    close(data.pipe_fd[1]);
 	i = 0;
 	while (i++ < argc - 3)
     	waitpid(data.pid[i], NULL, 0);
+		close(data.pipe_fd[i][0]);
+		close(data.pipe_fd[i][1]);
     return (0);
 }

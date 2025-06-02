@@ -12,14 +12,13 @@ typedef struct s_pipex
 {
     int     infile;
     int     outfile;
-    int     *pipe_fd[2];
+    int     **pipe_fd;
     pid_t   *pid;
     char    **cmd;
     char    **envp;
 }           t_pipex;
 
-void    error_message(const char *message);
-void    execute_command(t_pipex *data, char **argv, int index);
 char    *get_path(char *cmd, char **envp);
+char    **ft_split(char const *s, char c);
 
 #endif
