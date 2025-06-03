@@ -11,7 +11,7 @@ OBJS		= $(SRCS:.c=.o)
 
 BONUS_DIR	= ./bonus
 BONUS_SRCS	= $(BONUS_DIR)/main_bonus.c \
-			  $(BONUS_DIR)/run_commands_bonus.c \
+			  $(BONUS_DIR)/run_command_bonus.c \
 			  $(BONUS_DIR)/get_path_bonus.c \
 			  $(BONUS_DIR)/cleanup_bonus.c
 BONUS_OBJS	= $(BONUS_SRCS:.c=.o)

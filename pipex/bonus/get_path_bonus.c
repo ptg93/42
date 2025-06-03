@@ -21,6 +21,7 @@ static char	*join_path(char **dir, const char *cmd)
 		free(full);
 		i++;
 	}
+	error_message("join_path");
 	return (NULL);
 }
 
@@ -35,17 +36,19 @@ char	*get_path(char *cmd, char **envp)
 		if (access(cmd, X_OK) == 0)
 			return (ft_strdup(cmd));
 		else
-			return (NULL);
+			error_message("command not found");
 	}
 	while (*envp && ft_strncmp(*envp, "PATH=", 5) != 0)
 		envp++;
 	if (!*envp)
-		return (NULL);
+		error_message("PATH not found in environment variables");
 	path_env = *envp + 5;
 	paths = ft_split(path_env, ':');
 	if (!paths)
-		return (NULL);
+		error_message("ft_split");
 	full_path = join_path(paths, cmd);
 	ft_free_split(paths);
+	if (!full_path)
+		error_message("command not found");
 	return (full_path);
 }

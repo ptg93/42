@@ -24,12 +24,14 @@ static void	execute_command(t_pipex *d, char **argv, int idx)
 	close_all_pipes(d);
 	cmd = ft_split(argv[idx + 2], ' ');
 	execve(get_path(cmd[0], d->envp), cmd, d->envp);
+	ft_free_split(cmd);
 	error_message("execve");
 }
 
 void	run_commands(t_pipex *d, char **argv)
 {
 	int	i;
+	int	j;
 
 	i = 0;
 	while (i < d->num_cmd)
@@ -40,5 +42,12 @@ void	run_commands(t_pipex *d, char **argv)
 		if (d->pid[i] == 0)
 			execute_command(d, argv, i);
 		i++;
+	}
+	j = 0;
+	while (j < d->num_pipes)
+	{
+		close(d->pipe_fd[j][0]);
+		close(d->pipe_fd[j][1]);
+		j++;
 	}
 }

@@ -57,7 +57,7 @@ int	main(int argc, char *argv[], char *envp[])
 	t_pipex	data;
 
 	if (argc < 5)
-		return (1);
+		error_message("Usage: ./pipex infile cmd1 cmd2 [...] outfile");
 	data.infile = open(argv[1], O_RDONLY);
 	data.outfile = open(argv[argc - 1],
 			O_CREAT | O_WRONLY | O_TRUNC, 0644);
