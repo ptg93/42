@@ -14,6 +14,12 @@ static void	close_all_pipes(t_pipex *d)
 	}
 }
 
+void	error_message(const char *msg)
+{
+	perror(msg);
+	exit(EXIT_FAILURE);
+}
+
 static void	wait_and_cleanup(t_pipex *d)
 {
 	int	i;
@@ -47,6 +53,14 @@ static void	create_pipes(t_pipex *d)
 	}
 }
 
+static void	free_pipe_fd(t_pipex *d)
+{
+	int i = 0;
+	while (i < d->num_pipes)
+		free(d->pipe_fd[i++]);
+	free(d->pipe_fd);
+}
+
 static void	allocate_data(t_pipex *d)
 {
 	int	i;
@@ -59,12 +73,18 @@ static void	allocate_data(t_pipex *d)
 	{
 		d->pipe_fd[i] = malloc(sizeof(int) * 2);
 		if (!d->pipe_fd[i])
+		{
+			free_pipe_fd(d);
 			error_message("malloc");
+		}
 		i++;
 	}
 	d->pid = malloc(sizeof(pid_t) * d->num_cmd);
 	if (!d->pid)
+	{
+		free_pipe_fd(d);
 		error_message("malloc");
+	}
 }
 
 int	main(int argc, char *argv[], char *envp[])
