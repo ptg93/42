@@ -1,6 +1,4 @@
-#include "pipex.h"
-#include <unistd.h>
-#include <stdlib.h>
+#include "pipex_bonus.h"
 
 static char	*join_path(char **dir, const char *cmd)
 {

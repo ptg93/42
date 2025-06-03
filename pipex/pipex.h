@@ -4,21 +4,21 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <fcntl.h>
-# include <stdio.h>
-# include <string.h>
 # include <sys/wait.h>
 
 typedef struct s_pipex
 {
 	int		infile;
 	int		outfile;
-	int		**pipe_fd;
-	pid_t	*pid;
-	char	**cmd;
-	char	**envp;
-}	t_pipex;
+	int		pipe_fd[2];
+	pid_t	pid1;
+	pid_t	pid2;
+}			t_pipex;
 
+void	error_message(const char *msg);
 char	*get_path(char *cmd, char **envp);
 char	**ft_split(char const *s, char c);
+void	ft_free_split(char **arr);
+void	run_command(t_pipex *d, char *arg, char **envp, int idx);
 
 #endif

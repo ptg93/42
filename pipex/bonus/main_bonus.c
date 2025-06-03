@@ -1,6 +1,6 @@
 #include "pipex_bonus.h"
 
-static void	close_all_pipes(t_pipex *d)
+void	close_all_pipes(t_pipex *d)
 {
 	int	i;
 

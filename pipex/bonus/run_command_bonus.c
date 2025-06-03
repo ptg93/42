@@ -1,4 +1,3 @@
-/* execute_command.c */
 #include "pipex_bonus.h"
 
 static void	execute_command(t_pipex *d, char **argv, int idx)

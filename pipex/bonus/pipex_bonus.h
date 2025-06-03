@@ -20,7 +20,10 @@ typedef struct s_pipex
 void	error_message(const char *msg);
 char	*get_path(char *cmd, char **envp);
 char	**ft_split(char const *s, char c);
-void	execute_command(t_pipex *d, char **argv, int idx);
-char	*get_path(char *cmd, char **envp);
+void	run_commands(t_pipex *d, char **argv);
+void	close_all_pipes(t_pipex *d);
+void	wait_and_cleanup(t_pipex *d);
+void	free_pipe_fd(t_pipex *d);
+void	ft_free_split(char **arr);
 
 #endif
