@@ -1,4 +1,3 @@
-/* pipex_bonus.c */
 #include "pipex_bonus.h"
 
 static void	close_all_pipes(t_pipex *d)
@@ -14,32 +13,6 @@ static void	close_all_pipes(t_pipex *d)
 	}
 }
 
-void	error_message(const char *msg)
-{
-	perror(msg);
-	exit(EXIT_FAILURE);
-}
-
-static void	wait_and_cleanup(t_pipex *d)
-{
-	int	i;
-
-	i = 0;
-	while (i < d->num_cmd)
-	{
-		waitpid(d->pid[i], NULL, 0);
-		i++;
-	}
-	close(d->infile);
-	close(d->outfile);
-	close_all_pipes(d);
-	i = 0;
-	while (i < d->num_pipes)
-		free(d->pipe_fd[i++]);
-	free(d->pipe_fd);
-	free(d->pid);
-}
-
 static void	create_pipes(t_pipex *d)
 {
 	int	i;
@@ -51,14 +24,6 @@ static void	create_pipes(t_pipex *d)
 			error_message("pipe");
 		i++;
 	}
-}
-
-static void	free_pipe_fd(t_pipex *d)
-{
-	int i = 0;
-	while (i < d->num_pipes)
-		free(d->pipe_fd[i++]);
-	free(d->pipe_fd);
 }
 
 static void	allocate_data(t_pipex *d)
@@ -90,7 +55,6 @@ static void	allocate_data(t_pipex *d)
 int	main(int argc, char *argv[], char *envp[])
 {
 	t_pipex	data;
-	int		i;
 
 	if (argc < 5)
 		return (1);
@@ -99,21 +63,12 @@ int	main(int argc, char *argv[], char *envp[])
 			O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	if (data.infile < 0 || data.outfile < 0)
 		error_message("open");
-	data.num_cmd   = argc - 3;
+	data.num_cmd = argc - 3;
 	data.num_pipes = data.num_cmd - 1;
-	data.envp      = envp;
+	data.envp = envp;
 	allocate_data(&data);
 	create_pipes(&data);
-	i = 0;
-	while (i < data.num_cmd)
-	{
-		data.pid[i] = fork();
-		if (data.pid[i] < 0)
-			error_message("fork");
-		if (data.pid[i] == 0)
-			execute_command(&data, argv, i);
-		i++;
-	}
+	run_commands(&data, argv);
 	wait_and_cleanup(&data);
 	return (0);
 }

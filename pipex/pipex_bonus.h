@@ -21,6 +21,6 @@ void	error_message(const char *msg);
 char	*get_path(char *cmd, char **envp);
 char	**ft_split(char const *s, char c);
 void	execute_command(t_pipex *d, char **argv, int idx);
-char    *get_path(char *cmd, char **envp);
+char	*get_path(char *cmd, char **envp);
 
 #endif

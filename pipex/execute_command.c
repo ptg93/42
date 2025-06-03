@@ -1,7 +1,7 @@
 /* execute_command.c */
 #include "pipex_bonus.h"
 
-void	execute_command(t_pipex *d, char **argv, int idx)
+static void	execute_command(t_pipex *d, char **argv, int idx)
 {
 	char	**cmd;
 
@@ -26,4 +26,20 @@ void	execute_command(t_pipex *d, char **argv, int idx)
 	cmd = ft_split(argv[idx + 2], ' ');
 	execve(get_path(cmd[0], d->envp), cmd, d->envp);
 	error_message("execve");
+}
+
+void	run_commands(t_pipex *d, char **argv)
+{
+	int	i;
+
+	i = 0;
+	while (i < d->num_cmd)
+	{
+		d->pid[i] = fork();
+		if (d->pid[i] < 0)
+			error_message("fork");
+		if (d->pid[i] == 0)
+			execute_command(d, argv, i);
+		i++;
+	}
 }

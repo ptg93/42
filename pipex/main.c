@@ -129,8 +129,8 @@ int	main(int argc, char *argv[], char *envp[])
 	}
 	i = 0;
 	while (i++ < argc - 3)
-    	waitpid(data.pid[i], NULL, 0);
-		close(data.pipe_fd[i][0]);
-		close(data.pipe_fd[i][1]);
-    return (0);
+		waitpid(data.pid[i], NULL, 0);
+	close(data.pipe_fd[i][0]);
+	close(data.pipe_fd[i][1]);
+	return (0);
 }
