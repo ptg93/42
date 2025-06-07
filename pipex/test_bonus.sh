@@ -18,9 +18,9 @@ test_case() {
 	shift 3
 	commands=("$@")
 
+	# rm -f $INFILE $OUTFILE $REF_OUT
 	echo "$desc"
-	echo "Contenido de entrada:" > $infile
-	echo -e "banana\napple\ncherry\ndate\napricot" >> $infile
+	echo -e "banana\napple\ncherry\ndate\napricot" > $infile
 
 	# Comando para pipex_bonus
 	cmd_str="$PIPEX $infile"
@@ -30,11 +30,12 @@ test_case() {
 	cmd_str+=" $outfile"
 
 	# Comando para bash normal
-	ref_cmd="< $infile"
+	ref_cmd="cat $infile"
 	for cmd in "${commands[@]}"; do
 		ref_cmd+=" | $cmd"
 	done
 	ref_cmd+=" > $REF_OUT"
+
 
 	# Ejecutar ambos
 	eval "$cmd_str" 2> /dev/null

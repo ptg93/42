@@ -38,6 +38,6 @@ void	wait_and_cleanup(t_pipex *d)
 	close(d->infile);
 	close(d->outfile);
 	close_all_pipes(d);
-	free(d->pipe_fd);
+	free_pipe_fd(d);
 	free(d->pid);
 }
