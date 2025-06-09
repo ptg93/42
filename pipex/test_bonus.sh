@@ -18,7 +18,6 @@ test_case() {
 	shift 3
 	commands=("$@")
 
-	# rm -f $INFILE $OUTFILE $REF_OUT
 	echo "$desc"
 	echo -e "banana\napple\ncherry\ndate\napricot" > $infile
 
