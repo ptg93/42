@@ -1,0 +1,11 @@
+static char * llama_xpm[] = {
+"5 5 2 1",
+"A c #FFFFFF",
+". c #000000",
+"AAAAA",
+"A...A",
+"A.A.A",
+"A...A",
+"AAAAA"
+};
+
