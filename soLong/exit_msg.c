@@ -4,11 +4,35 @@
 #include <unistd.h> // For close
 #include <stdlib.h> // For exit
 #include <string.h> // For strerror
-void	exit_msg(const char *msg)
+
+void	free_map(char **map)
 {
-    if (msg)
-        perror(msg);
-    else
-        perror("An error occurred");
-    exit(EXIT_FAILURE);
+	int	i;
+
+	if (!map)
+		return ;
+	i = 0;
+	while (map[i])
+	{
+		free(map[i]);
+		i++;
+	}
+	free(map);
 }
+
+void	exit_msg(const char *msg, t_map *map)
+{
+	if (map)
+	{
+		if (map->map)
+			free_map(map->map);
+		if (map->win)
+			mlx_destroy_window(map->mlx, map->win);
+		if (map->mlx)
+			mlx_destroy_display(map->mlx); // Linux
+	}
+	if (msg)
+		perror(msg);
+	exit(EXIT_FAILURE);
+}
+

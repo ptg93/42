@@ -28,76 +28,169 @@ int	load_game()
 	mlx_hook(win, 17, 0, handle_close, NULL);
 	mlx_loop(mlx);
 	return (0);
-	// Load game resources, initialize game state, etc.
-	// This is a placeholder function for future implementation.
-	return (0);
 }
 
-void get_map_dimensions(t_map *map, char *buff)
+void	dfs(char **map, int x, int y, int *c_found, int *e_found)
+{
+	if (map[y][x] == '1' || map[y][x] == 'X')
+		return ;
+	if (map[y][x] == 'C')
+		(*c_found)++;
+	else if (map[y][x] == 'E')
+		*e_found = 1;
+	map[y][x] = 'X';
+	dfs(map, x + 1, y, c_found, e_found);
+	dfs(map, x - 1, y, c_found, e_found);
+	dfs(map, x, y + 1, c_found, e_found);
+	dfs(map, x, y - 1, c_found, e_found);
+}
+
+char	**copy_map(t_map *src, int height)
+{
+	char	**copy;
+	int		i;
+
+	copy = malloc(sizeof(char *) * (height + 1));
+	if (!copy)
+		exit_msg("Error copying map", src);
+	i = 0;
+	while (i < height)
+	{
+		copy[i] = ft_strdup(src->map[i]);
+		if (!copy[i])
+			exit_msg("Error copying map row", src);
+		i++;
+	}
+	copy[i] = NULL;
+	return (copy);
+}
+
+void	validate_path(t_map *map)
+{
+	char	**map_copy;
+	int		c_found;
+	int		e_found;
+
+	map_copy = copy_map(map->map, map->height);
+	c_found = 0;
+	e_found = 0;
+	dfs(map_copy, map->player_x, map->player_y, &c_found, &e_found);
+	if (c_found != map->collectibles || !e_found)
+	{
+		int i = 0;
+		while (map_copy[i])
+			free(map_copy[i++]);
+		free(map_copy);
+		exit_msg("No valid path to all collectibles and exit", map);
+	}
+	int i = 0;
+	while (map_copy[i])
+		free(map_copy[i++]);
+	free(map_copy);
+}
+
+void validate_borders(t_map *map)
 {
 	int i;
-	int j;
 
-	map->width = 0;
-	map->height = 1;
-	map->collectibles = 0;
 	i = 0;
-	while (buff[i] != '\0')
+	while (i < map->width)
 	{
-		if (!(buff[i] == '1' || buff[i] == '0' || buff[i] == 'C' ||
-			buff[i] == 'E' || buff[i] == 'P'))
-			exit_msg("Invalid character in map");
-		else if (buff[i] == '\n')
-		{
-			if (map->height == 1)
-				map->width = i + 1;
-			else if (map->width != ((i + 1) / map->height))
-				exit_msg("Inconsistent row lengths in map");
-			map->height++;
-		}
-		else if (buff[i] == 'C')
-			map->collectibles++;
+		if (map->map[0][i] != '1' || map->map[map->height - 1][i] != '1')
+			exit_msg("Map must be surrounded by walls", map);
+		i++;
+	}
+	i = 0;
+	while (i < map->height)
+	{
+		if (map->map[i][0] != '1' || map->map[i][map->width - 1] != '1')
+			exit_msg("Map must be surrounded by walls", map);
 		i++;
 	}
 }
 
-char **allocate_map(int width, int height)
+int	validate_map(t_map *map)
 {
-	char **map;
+	int i;
+	int j;
+	int player_count;
+	int exit_count;
+
+	map->collectibles = 0;
+	player_count = 0;
+	exit_count = 0;
+	map->height = 0;
+	while (map->map[map->height])
+		map->height++;
+	if (map->height == 0)
+		return (0);
+	map->width = ft_strlen(map->map[0]);
+	i = 0;
+	while (i < map->height)
+	{
+		if (ft_strlen(map->map[i]) != map->width)
+			return (0);
+		j = 0;
+		while (j < map->width)
+		{
+			if (map->map[i][j] == 'P')
+			{
+				player_count++;
+				map->player_x = j;
+				map->player_y = i;
+			}
+			else if (map->map[i][j] == 'E')
+			{
+				exit_count++;
+				map->exit_x = j;
+				map->exit_y = i;
+			}
+			else if (map->map[i][j] == 'C')
+				map->collectibles++;
+			j++;
+		}
+		i++;
+	}
+	if (player_count != 1 || exit_count != 1 || map->collectibles < 1)
+		return (0);
+	validate_borders(map);
+	validate_path(map);
+	return (1);
+}
+
+void check_characters(char *buff, t_map *map)
+{
 	int i;
 
-	map = malloc(sizeof(char *) * (height + 1));
-	if (!map)
-		exit_msg("Memory allocation failed for map");
-	for (i = 0; i < height; i++)
+	i = 0;
+	while (buff[i] != '\0')
 	{
-		map[i] = malloc(sizeof(char) * (width + 1));
-		if (!map[i])
-			exit_msg("Memory allocation failed for map row");
+		if (!ft_strchr(MAP_CHARS, buff[i]) && buff[i] != '\n')
+			exit_msg("Invalid character in map", map);
+		i++;
 	}
-	map[height] = NULL; // Null-terminate the array of strings
-	return (map);
 }
 
 int	check_map(int argc, char **argv, t_map *map)
 {
 	int	fd;
-	char *buff [BUFFER_SIZE];
+	char buff [BUFFER_SIZE + 1];
 
-	if (argc != 2)
-		exit_msg("Usage: ./so_long <map_file>");
 	fd = open(argv[1], O_RDONLY);
 	if (fd < 0)
-		exit_msg("Error opening map file");
+		exit_msg("Error opening map file", map);
 	if (read(fd, buff, BUFFER_SIZE) < 0)
-		exit_msg("Error reading map file");
+		exit_msg("Error reading map file", map);
+	buff[BUFFER_SIZE] = '\0';
 	close(fd);
-	get_map_dimensions(map, buff);
-	map->map = allocate_map(map->width, map->height);
+	check_characters(buff, map);
+	map->map = ft_split(buff, '\n');
 	if (!map->map)
-		exit_msg("Memory allocation failed for map");
+		exit_msg("Error splitting map into lines", map);
+	if (map->map[0] == NULL)
+		exit_msg("Map is empty", map);
 	if (!validate_map(map))
-		exit_msg("Invalid map");
+		exit_msg("Invalid map", map);
 	return (1);
 }
 
@@ -105,6 +198,10 @@ int	main(int argc, char **argv)
 {
 	t_map map;
 
+	if (argc != 2)
+		exit_msg("Usage: ./so_long <map_file>", &map);
+	if (ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4) != 0)
+		exit_msg("Map file must have a .ber extension", &map);
 	check_map(argc, argv, &map);
 	load_game();
 	return (0);

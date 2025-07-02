@@ -22,6 +22,10 @@ typedef struct s_map
     int		exit_y;       // Exit's y-coordinate
     int		collectibles;  // Number of collectibles in the map
     int		moves;         // Number of moves made by the player
+    int     c_found;
+    int     e_found;
+    void    *mlx;          // Pointer to the mlx instance
+    void    *win;          // Pointer to the mlx window
 }	t_map;
 
 #endif
