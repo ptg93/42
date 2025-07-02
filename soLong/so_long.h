@@ -8,8 +8,23 @@
 # include <string.h>
 # include <errno.h>
 # include "minilibx-linux/mlx.h"
-# define BUFFER_SIZE 1024
+# include "libft/libft.h"
 # define MAP_CHARS "01CEP" // Characters allowed in the map: 0 (empty), 1 (wall), C (collectible), E (exit), P (player)
+
+
+typedef struct s_sprite {
+	void	*img;
+	int		width;
+	int		height;
+}	t_sprite;
+
+typedef struct s_textures {
+	t_sprite	wall;
+	t_sprite	floor;
+	t_sprite	collectible;
+	t_sprite	exit;
+	t_sprite	player;
+}	t_textures;
 
 typedef struct s_map
 {
@@ -26,6 +41,22 @@ typedef struct s_map
     int     e_found;
     void    *mlx;          // Pointer to the mlx instance
     void    *win;          // Pointer to the mlx window
+    t_textures textures;   // Textures for the game
 }	t_map;
+
+int		handle_close(void *param);
+int		load_game(t_map *map);
+void	load_textures(t_map *map);
+int		check_map(char **argv, t_map *map);
+void	exit_msg(const char *msg, t_map *map);
+void	free_map(char **map);
+void	check_characters(t_map *map);
+int		validate_map(t_map *map);
+void	get_map_lines(char *file_name, t_map *map);
+void	validate_borders(t_map *map);
+void	validate_path(t_map *map);
+void	dfs(char **map, int x, int y, int *c_found, int *e_found);
+char	**copy_map(t_map *src, int height);
+
 
 #endif
