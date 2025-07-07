@@ -13,22 +13,81 @@
 #include "so_long.h"
 #include "minilibx-linux/mlx.h"
 
-int	handle_close(void *param)
+int move_player(t_map *map, int dx, int dy)
 {
-	(void)param;
-	exit(0);
+	int new_x = map->player_x + dx;
+	int new_y = map->player_y + dy;
+
+	if (new_x < 0 || new_x >= map->width || new_y < 0 || new_y >= map->height)
+		return (0);
+	if (map->map[new_y][new_x] == '1') // Wall
+		return (0);
+	if (map->map[new_y][new_x] == 'C') // Collectible
+	{
+		map->collectibles--;
+		printf("Collectible found! Remaining: %d\n", map->collectibles);
+	}
+	if (map->map[map->player_y][map->player_x] == map->map[map->exit_y][map->exit_x])
+		map->map[map->player_y][map->player_x] = 'E'; // Clear old position
+	else
+		map->map[map->player_y][map->player_x] = '0';
+	map->player_x = new_x;
+	map->player_y = new_y;
+	map->moves++;
+	map->map[map->player_y][map->player_x] = 'P'; // Set new position
+	printf("Moves: %d\n", map->moves);
+	if ((map->player_x == map->exit_x && map->player_y == map->exit_y) && map->collectibles == 0)
+	{
+		map->game_over = 1;
+		printf("You won in %d moves!\n", map->moves);
+	}
+	draw_map(map);
+	return (1);
+}
+
+int	handle_keypress(int keycode, t_map *map)
+{
+	if (keycode == 65307) // ESC
+		exit_msg("Game closed", map);
+	else if (map->game_over)
+		return (0);
+	else if (keycode == 119) // W
+		move_player(map, 0, -1);
+	else if (keycode == 115) // S
+		move_player(map, 0, 1);
+	else if (keycode == 97)  // A
+		move_player(map, -1, 0);
+	else if (keycode == 100) // D
+		move_player(map, 1, 0);
+	return (0);
+}
+
+void display_score(t_map *map)
+{
+	char	*moves_str;
+	char	*display_str;
+
+	moves_str = ft_itoa(map->moves);
+	display_str = ft_strjoin("Moves: ", moves_str);
+	free(moves_str);
+	mlx_string_put(map->mlx, map->win,
+		map->width * 32 - (ft_strlen(display_str) * 10),
+		20,
+		0x000000,
+		display_str);
+
+	free(display_str);
 }
 
 void draw_map(t_map *map)
 {
 	int x;
 	int y;
+	int sprite_index = map->moves % 2;
 
-	printf("Drawing map with dimensions: %d x %d\n", map->width, map->height);
 	y = 0;
 	while(y < map->height)
 	{
-		printf("Drawing row %d: %s\n", y, map->map[y]);
 		x = 0;
 		while(x < map->width)
 		{
@@ -40,30 +99,39 @@ void draw_map(t_map *map)
 			else if (map->map[y][x] == 'E')
 				mlx_put_image_to_window(map->mlx, map->win, map->textures.exit.img, x * 32, y * 32);
 			else if (map->map[y][x] == 'P')
-				mlx_put_image_to_window(map->mlx, map->win, map->textures.player.img, x * 32, y * 32);
+				mlx_put_image_to_window(map->mlx, map->win, map->textures.player[sprite_index].img, x * 32, y * 32);
 			x++;
 		}
 		y++;
 	}
+	display_score(map);
+	if (map->game_over)
+		mlx_string_put(map->mlx, map->win,
+	(map->width * 32) / 2 - 40,
+	(map->height * 32) / 2,
+	0xFF0000,
+	"You won! Press ESC");
 }
 
 void load_textures(t_map *map)
 {
-	// Load textures here
 	map->textures.wall.img = mlx_xpm_file_to_image(map->mlx, "textures/wall.xpm", &map->textures.wall.width, &map->textures.wall.height);
 	if (!map->textures.wall.img)
 		exit_msg("Error loading wall texture", map);
-	map->textures.floor.img = mlx_xpm_file_to_image(map->mlx, "textures/floor.xpm", &map->textures.wall.width, &map->textures.wall.height);
+	map->textures.floor.img = mlx_xpm_file_to_image(map->mlx, "textures/floor.xpm", &map->textures.floor.width, &map->textures.floor.height);
 	if (!map->textures.floor.img)
 		exit_msg("Error loading floor texture", map);
-	map->textures.collectible.img = mlx_xpm_file_to_image(map->mlx, "textures/collectible.xpm", &map->textures.wall.width, &map->textures.wall.height);
+	map->textures.collectible.img = mlx_xpm_file_to_image(map->mlx, "textures/collectible.xpm", &map->textures.collectible.width, &map->textures.collectible.height);
 	if (!map->textures.collectible.img)
 		exit_msg("Error loading collectible texture", map);
-	map->textures.exit.img = mlx_xpm_file_to_image(map->mlx, "textures/exit.xpm", &map->textures.wall.width, &map->textures.wall.height);
+	map->textures.exit.img = mlx_xpm_file_to_image(map->mlx, "textures/exit.xpm", &map->textures.exit.width, &map->textures.exit.height);
 	if (!map->textures.exit.img)
 		exit_msg("Error loading exit texture", map);
-	map->textures.player.img = mlx_xpm_file_to_image(map->mlx, "textures/player.xpm", &map->textures.wall.width, &map->textures.wall.height);
-	if (!map->textures.player.img)
+	map->textures.player[0].img  = mlx_xpm_file_to_image(map->mlx, "textures/player.xpm", &map->textures.player[0].width, &map->textures.player[0].height);
+	if (!map->textures.player[0].img)
+		exit_msg("Error loading player texture", map);
+	map->textures.player[1].img  = mlx_xpm_file_to_image(map->mlx, "textures/player.xpm", &map->textures.player[1].width, &map->textures.player[1].height);
+	if (!map->textures.player[1].img)
 		exit_msg("Error loading player texture", map);
 }
 
@@ -75,11 +143,11 @@ int	load_game(t_map *map)
 	map->win = mlx_new_window(map->mlx, map->width * 32, map->height * 32, "so_long");
 	if (!map->win)
 		exit_msg("Error creating window", map);
-	// Load images
 	load_textures(map);
-	mlx_hook(map->win, 17, 0, handle_close, NULL);
-	// Draw the map
 	draw_map(map);
+	mlx_key_hook(map->win, handle_keypress, map);
+	mlx_hook(map->win, 17, 0, handle_close, map);
+	map->game_over = 0;
 	mlx_loop(map->mlx);
 	return (0);
 }
@@ -137,7 +205,7 @@ void	validate_path(t_map *map)
 		while (map_copy[i])
 			free(map_copy[i++]);
 		free(map_copy);
-		exit_msg("No valid path to all collectibles and exit", map);
+		exit_msg("Error: No valid path to all collectibles and exit", map);
 	}
 	int i = 0;
 	while (map_copy[i])
@@ -153,14 +221,14 @@ void validate_borders(t_map *map)
 	while (i < map->width)
 	{
 		if (map->map[0][i] != '1' || map->map[map->height - 1][i] != '1')
-			exit_msg("Map must be surrounded by walls", map);
+			exit_msg("Error: Map must be surrounded by walls", map);
 		i++;
 	}
 	i = 0;
 	while (i < map->height)
 	{
 		if (map->map[i][0] != '1' || map->map[i][map->width - 1] != '1')
-			exit_msg("Map must be surrounded by walls", map);
+			exit_msg("Error: Map must be surrounded by walls", map);
 		i++;
 	}
 }
@@ -236,7 +304,7 @@ void check_characters(t_map *map)
 		while (map->map[i][j] != '\0')
 		{
 			if (!ft_strchr(MAP_CHARS, map->map[i][j]) && map->map[i][j] != '\n')
-				exit_msg("Invalid character in map", map);
+				exit_msg("Error: Invalid character in map", map);
 			j++;
 		}
 		i++;
@@ -262,7 +330,7 @@ void	get_map_lines(char *file_name, t_map *map)
 	close(fd);
 	map->map = malloc(sizeof(char *) * (line_count + 1));
 	if (!map->map)
-		exit_msg("Memory allocation failed", map);
+		exit_msg("Error: Memory allocation failed", map);
 	fd = open(file_name, O_RDONLY);
 	if (fd < 0)
 		exit_msg("Error reopening map file", map);
@@ -283,7 +351,7 @@ int	check_map(char **argv, t_map *map)
 	printf("Checking map: %s\n", argv[1]);
 	get_map_lines(argv[1], map);
 	if (!map->map)
-		exit_msg("Failed to read map file", map);
+		exit_msg("Error: Failed to read map file", map);
 	// Delete this later
 	printf("Map read successfully, checking characters...\n");
 	int i = 0;
@@ -296,9 +364,9 @@ int	check_map(char **argv, t_map *map)
 	check_characters(map);
 	printf("Characters checked, validating map...\n");
 	if (map->map[0] == NULL)
-		exit_msg("Map is empty", map);
+		exit_msg("Error: Map is empty", map);
 	if (!validate_map(map))
-		exit_msg("Invalid map", map);
+		exit_msg("Error: Invalid map", map);
 	return (1);
 }
 
@@ -307,9 +375,9 @@ int	main(int argc, char **argv)
 	t_map map;
 
 	if (argc != 2)
-		exit_msg("Usage: ./so_long <map_file>", NULL);
+		exit_msg("Error: Usage: ./so_long <map_file>", NULL);
 	if (ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4) != 0)
-		exit_msg("Map file must have a .ber extension", NULL);
+		exit_msg("Error: Map file must have a .ber extension", NULL);
 	check_map(argv, &map);
 	load_game(&map);
 	return (0);

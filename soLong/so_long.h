@@ -35,7 +35,7 @@ typedef struct s_textures {
 	t_sprite	floor;
 	t_sprite	collectible;
 	t_sprite	exit;
-	t_sprite	player;
+	t_sprite	player [2];
 }	t_textures;
 
 typedef struct s_map
@@ -53,9 +53,13 @@ typedef struct s_map
     int     e_found;
     void    *mlx;          // Pointer to the mlx instance
     void    *win;          // Pointer to the mlx window
+    int     game_over;
     t_textures textures;   // Textures for the game
 }	t_map;
 
+int     move_player(t_map *map, int dx, int dy);
+int		handle_keypress(int keycode, t_map *map);
+void	draw_map(t_map *map);
 int		handle_close(void *param);
 int		load_game(t_map *map);
 void	load_textures(t_map *map);
@@ -69,6 +73,7 @@ void	validate_borders(t_map *map);
 void	validate_path(t_map *map);
 void	dfs(char **map, int x, int y, int *c_found, int *e_found);
 char	**copy_map(t_map *src, int height);
+void	free_all_textures(t_map *map);
 
 
 #endif
