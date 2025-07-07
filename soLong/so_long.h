@@ -21,8 +21,16 @@
 # include <errno.h>
 # include "minilibx-linux/mlx.h"
 # include "libft/libft.h"
-# define MAP_CHARS "01CEP" // Characters allowed in the map: 0 (empty), 1 (wall), C (collectible), E (exit), P (player)
+# ifndef MAP_CHARS
+#  define MAP_CHARS "01CEP"
+# endif
 
+typedef struct s_enemy {
+	int x;
+    int y;       
+	int start_x;
+    int start_y;
+}	t_enemy;
 
 typedef struct s_sprite {
 	void	*img;
@@ -36,6 +44,7 @@ typedef struct s_textures {
 	t_sprite	collectible;
 	t_sprite	exit;
 	t_sprite	player [2];
+    t_sprite    enemy[2];
 }	t_textures;
 
 typedef struct s_map
@@ -53,8 +62,11 @@ typedef struct s_map
     int     e_found;
     void    *mlx;          // Pointer to the mlx instance
     void    *win;          // Pointer to the mlx window
+    int     enemy_count;    // Number of enemies
+    int     enemy_index;    // Current enemy index for movement
     int     game_over;
     t_textures textures;   // Textures for the game
+    t_enemy *enemies;      // Array of enemies
 }	t_map;
 
 int     move_player(t_map *map, int dx, int dy);
@@ -74,6 +86,8 @@ void	validate_path(t_map *map);
 void	dfs(char **map, int x, int y, int *c_found, int *e_found);
 char	**copy_map(t_map *src, int height);
 void	free_all_textures(t_map *map);
-
+void	move_enemies(int danger,t_map *map);
+void	check_game_over(int type, t_map *map);
+int		pseudo_random(int seed);
 
 #endif

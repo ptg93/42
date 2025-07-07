@@ -42,6 +42,13 @@ void	free_all_textures(t_map *map)
 			mlx_destroy_image(map->mlx, map->textures.player[i].img);
 		i++;
 	}
+	i = 0;
+	while (map->textures.enemy[i].img && i < 2)
+	{
+		if (map->textures.enemy[i].img)
+			mlx_destroy_image(map->mlx, map->textures.enemy[i].img);
+		i++;
+	}
 }
 
 void	free_map(char **map)

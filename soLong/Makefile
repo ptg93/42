@@ -1,5 +1,3 @@
-# so_long/Makefile
-
 NAME = so_long
 
 SRC = main.c exit_msg.c
@@ -18,12 +16,18 @@ INCLUDES = -I$(LIBFT_DIR) -I$(MLX_DIR)
 
 MLX_FLAGS = -lXext -lX11 -lm
 
+MAP_CHARS_DEF = -DMAP_CHARS=\"01CEP\"
+
+all: CFLAGS += $(MAP_CHARS_DEF)
 all: $(NAME)
 
 $(NAME): $(OBJ)
 	$(MAKE) -C $(LIBFT_DIR)
 	$(MAKE) -C $(MLX_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(NAME) $(OBJ) $(LIBFT) $(MLX) $(MLX_FLAGS)
+
+bonus: CFLAGS += -DMAP_CHARS=\"01CEPM\"
+bonus: fclean $(NAME)
 
 clean:
 	rm -f $(OBJ)
@@ -36,4 +40,3 @@ fclean: clean
 	$(MAKE) -C $(MLX_DIR) clean
 
 re: fclean all
-

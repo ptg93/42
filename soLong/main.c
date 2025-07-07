@@ -13,6 +13,65 @@
 #include "so_long.h"
 #include "minilibx-linux/mlx.h"
 
+int pseudo_random(int seed)
+{
+	return ((seed * 37 + 17) % 4);
+}
+
+void	check_game_over(int type, t_map *map)
+{
+	map->game_over = type;
+	if (type == 1)
+		mlx_string_put(map->mlx, map->win,
+	(map->width * 32) / 2 - 40,
+	(map->height * 32) / 2,
+	0xFF0000,
+	"You won! Press ESC");
+	else if (type == 2)
+		mlx_string_put(map->mlx, map->win,
+	(map->width * 32) / 2 - 70,
+	(map->height * 32) / 2,
+	0xFF0000,
+	"You were caught! Press ESC");
+}
+
+void	move_enemies(int danger, t_map *map)
+{
+	int i;
+	int r;
+	int dx[4] = {0, 0, -1, 1};  // Up, Down, Left, Right
+	int dy[4] = {-1, 1, 0, 0};
+
+	i = 0;
+	while (i < map->enemy_count)
+	{
+		r = pseudo_random(map->moves + i);
+		int new_x = map->enemies[i].x + dx[r];
+		int new_y = map->enemies[i].y + dy[r];
+		int dist_x = abs(new_x - map->enemies[i].start_x);
+		int dist_y = abs(new_y - map->enemies[i].start_y);
+
+		if (new_x >= 0 && new_x < map->width && new_y >= 0 && new_y < map->height
+			&& map->map[new_y][new_x] != '1'
+			&& map->map[new_y][new_x] != 'E'
+			&& map->map[new_y][new_x] != 'C'
+			&& dist_x + dist_y <= 2)
+		{
+			map->map[map->enemies[i].y][map->enemies[i].x] = '0';
+			map->map[new_y][new_x] = 'M';
+			map->enemies[i].x = new_x;
+			map->enemies[i].y = new_y;
+		}
+		if (danger && map->player_x == new_x && map->player_y == new_y)
+		{
+			ft_printf("You were caught by an enemy at (%d, %d)!\n", new_x, new_y);
+			map->game_over = 2;
+			return;
+		}
+		i++;
+	}
+}
+
 int move_player(t_map *map, int dx, int dy)
 {
 	int new_x = map->player_x + dx;
@@ -25,23 +84,33 @@ int move_player(t_map *map, int dx, int dy)
 	if (map->map[new_y][new_x] == 'C') // Collectible
 	{
 		map->collectibles--;
-		printf("Collectible found! Remaining: %d\n", map->collectibles);
+		ft_printf("Collectible found! Remaining: %d\n", map->collectibles);
 	}
 	if (map->map[map->player_y][map->player_x] == map->map[map->exit_y][map->exit_x])
 		map->map[map->player_y][map->player_x] = 'E'; // Clear old position
 	else
 		map->map[map->player_y][map->player_x] = '0';
+	if (map->map[new_y][new_x] == 'M') // If player was on an enemy
+		move_enemies(1, map);
+	else
+		move_enemies(0, map);
 	map->player_x = new_x;
 	map->player_y = new_y;
 	map->moves++;
 	map->map[map->player_y][map->player_x] = 'P'; // Set new position
-	printf("Moves: %d\n", map->moves);
+	ft_printf("Moves: %d\n", map->moves);
 	if ((map->player_x == map->exit_x && map->player_y == map->exit_y) && map->collectibles == 0)
 	{
+		ft_printf("You won in %d moves!\n", map->moves);
 		map->game_over = 1;
-		printf("You won in %d moves!\n", map->moves);
 	}
 	draw_map(map);
+	if(map->map[new_y][new_x] == 'M') // Enemy
+	{
+		ft_printf("You were caught by an enemy!\n");
+		map->game_over = 2;
+		return (0);
+	}
 	return (1);
 }
 
@@ -100,17 +169,14 @@ void draw_map(t_map *map)
 				mlx_put_image_to_window(map->mlx, map->win, map->textures.exit.img, x * 32, y * 32);
 			else if (map->map[y][x] == 'P')
 				mlx_put_image_to_window(map->mlx, map->win, map->textures.player[sprite_index].img, x * 32, y * 32);
+			else if (map->map[y][x] == 'M')
+				mlx_put_image_to_window(map->mlx, map->win, map->textures.enemy[sprite_index].img, x * 32, y * 32);
 			x++;
 		}
 		y++;
 	}
+	check_game_over(map->game_over, map);
 	display_score(map);
-	if (map->game_over)
-		mlx_string_put(map->mlx, map->win,
-	(map->width * 32) / 2 - 40,
-	(map->height * 32) / 2,
-	0xFF0000,
-	"You won! Press ESC");
 }
 
 void load_textures(t_map *map)
@@ -133,6 +199,12 @@ void load_textures(t_map *map)
 	map->textures.player[1].img  = mlx_xpm_file_to_image(map->mlx, "textures/player.xpm", &map->textures.player[1].width, &map->textures.player[1].height);
 	if (!map->textures.player[1].img)
 		exit_msg("Error loading player texture", map);
+	map->textures.enemy[0].img  = mlx_xpm_file_to_image(map->mlx, "textures/enemy_01.xpm", &map->textures.enemy[0].width, &map->textures.enemy[0].height);
+	if (!map->textures.enemy[0].img)
+		exit_msg("Error loading enemy texture", map);
+	map->textures.enemy[1].img  = mlx_xpm_file_to_image(map->mlx, "textures/enemy_02.xpm", &map->textures.enemy[1].width, &map->textures.enemy[1].height);
+	if (!map->textures.enemy[1].img)
+		exit_msg("Error loading enemy texture", map);
 }
 
 int	load_game(t_map *map)
@@ -143,11 +215,12 @@ int	load_game(t_map *map)
 	map->win = mlx_new_window(map->mlx, map->width * 32, map->height * 32, "so_long");
 	if (!map->win)
 		exit_msg("Error creating window", map);
+	map->game_over = 0;
+	map->moves = 0;
 	load_textures(map);
 	draw_map(map);
 	mlx_key_hook(map->win, handle_keypress, map);
 	mlx_hook(map->win, 17, 0, handle_close, map);
-	map->game_over = 0;
 	mlx_loop(map->mlx);
 	return (0);
 }
@@ -156,7 +229,7 @@ void	dfs(char **map, int x, int y, int *c_found, int *e_found)
 {
 	if (y < 0 || x < 0 || !map[y] || !map[y][x])
 		return ;
-	if (map[y][x] == '1' || map[y][x] == 'X')
+	if (map[y][x] == '1' || map[y][x] == 'X' || map[y][x] == 'M')
 		return ;
 	if (map[y][x] == 'C')
 		(*c_found)++;
@@ -243,14 +316,15 @@ int	validate_map(t_map *map)
 	map->collectibles = 0;
 	player_count = 0;
 	exit_count = 0;
+	map->enemy_index = 0;
 	map->height = 0;
 	while (map->map[map->height])
 		map->height++;
 	if (map->height == 0)
 		return (0);
-	printf("Map height: %d\n", map->height);
+	ft_printf("Map height: %d\n", map->height);
 	map->width = ft_strlen(map->map[0]);
-	printf("First row width: %d\n", map->width);
+	ft_printf("First row width: %d\n", map->width);
 	i = 0;
 	while (i < map->height)
 	{
@@ -273,20 +347,28 @@ int	validate_map(t_map *map)
 			}
 			else if (map->map[i][j] == 'C')
 				map->collectibles++;
+			else if (map->map[i][j] == 'M' && map->enemy_count > 0 && map->enemies)
+			{
+				map->enemies[map->enemy_index].x = j;
+				map->enemies[map->enemy_index].y = i;
+				map->enemies[map->enemy_index].start_x = j;
+				map->enemies[map->enemy_index].start_y = i;
+				map->enemy_index++;
+			}
 			j++;
 		}
 		i++;
 	}
-	printf("Map width: %d\n", map->width);
-	printf("Player count: %d, Exit count: %d, Collectibles: %d\n",
+	ft_printf("Map width: %d\n", map->width);
+	ft_printf("Player count: %d, Exit count: %d, Collectibles: %d\n",
 		player_count, exit_count, map->collectibles);
 	if (player_count != 1 || exit_count != 1 || map->collectibles < 1)
 		return (0);
 	validate_borders(map);
-	printf("DFS start at (%d, %d): char='%c'\n", map->player_y, map->player_x,
+	ft_printf("DFS start at (%d, %d): char='%c'\n", map->player_y, map->player_x,
 	map->map[map->player_y][map->player_x]);
 	for (int k = 0; map->map[k]; k++)
-		printf("[%d] %s\n", k, map->map[k]);
+		ft_printf("[%d] %s\n", k, map->map[k]);
 	
 	validate_path(map);
 	return (1);
@@ -305,6 +387,8 @@ void check_characters(t_map *map)
 		{
 			if (!ft_strchr(MAP_CHARS, map->map[i][j]) && map->map[i][j] != '\n')
 				exit_msg("Error: Invalid character in map", map);
+			if (map->map[i][j] == 'M')
+				map->enemy_count++;
 			j++;
 		}
 		i++;
@@ -348,23 +432,23 @@ void	get_map_lines(char *file_name, t_map *map)
 
 int	check_map(char **argv, t_map *map)
 {
-	printf("Checking map: %s\n", argv[1]);
+	ft_printf("Checking map: %s\n", argv[1]);
 	get_map_lines(argv[1], map);
 	if (!map->map)
 		exit_msg("Error: Failed to read map file", map);
-	// Delete this later
-	printf("Map read successfully, checking characters...\n");
-	int i = 0;
-	while (map->map[i])
-	{
-		printf("[%d] %s\n", i, map->map[i]);
-		i++;
-	}
-	// End of delete
+	map->enemy_count = 0;
 	check_characters(map);
-	printf("Characters checked, validating map...\n");
+	ft_printf("Characters checked, validating map...\n");
 	if (map->map[0] == NULL)
 		exit_msg("Error: Map is empty", map);
+	if (map->enemy_count > 0)
+	{
+		map->enemies = malloc(sizeof(t_enemy) * map->enemy_count);
+		if (!map->enemies)
+			exit_msg("Error: Memory allocation for enemies failed", map);
+	}
+	else
+		map->enemies = NULL;
 	if (!validate_map(map))
 		exit_msg("Error: Invalid map", map);
 	return (1);
@@ -378,6 +462,9 @@ int	main(int argc, char **argv)
 		exit_msg("Error: Usage: ./so_long <map_file>", NULL);
 	if (ft_strncmp(argv[1] + ft_strlen(argv[1]) - 4, ".ber", 4) != 0)
 		exit_msg("Error: Map file must have a .ber extension", NULL);
+	map.mlx = NULL;
+	map.win = NULL;
+	map.map = NULL;
 	check_map(argv, &map);
 	load_game(&map);
 	return (0);
