@@ -1,0 +1,68 @@
+#include "so_long.h"
+
+static int	is_valid_move(t_map *map, int x, int y)
+{
+	if (x < 0 || x >= map->width || y < 0 || y >= map->height)
+		return (0);
+	if (map->map[y][x] == '1')
+		return (0);
+	return (1);
+}
+
+static void	update_position(t_map *map, int new_x, int new_y)
+{
+	if (map->map[map->player_y][map->player_x]
+	== map->map[map->exit_y][map->exit_x])
+		map->map[map->player_y][map->player_x] = 'E';
+	else
+		map->map[map->player_y][map->player_x] = '0';
+	map->player_x = new_x;
+	map->player_y = new_y;
+	map->map[new_y][new_x] = 'P';
+	map->moves++;
+	ft_printf("Moves: %d\n", map->moves);
+}
+
+static void	check_collectibles(t_map *map, int new_x, int new_y)
+{
+	if (map->map[new_y][new_x] == 'C')
+	{
+		map->collectibles--;
+		ft_printf("Collectible found! Remaining: %d\n", map->collectibles);
+	}
+}
+
+static int	check_enemy_collision(t_map *map, int new_x, int new_y)
+{
+	if (map->map[new_y][new_x] == 'M')
+	{
+		map->game_over = 2;
+		ft_printf("You were caught by an enemy!\n");
+		return (1);
+	}
+	return (0);
+}
+
+int	move_player(t_map *map, int dx, int dy)
+{
+	int	new_x;
+	int	new_y;
+
+	new_x = map->player_x + dx;
+	new_y = map->player_y + dy;
+	if (!is_valid_move(map, new_x, new_y))
+		return (0);
+	check_collectibles(map, new_x, new_y);
+	if (check_enemy_collision(map, new_x, new_y))
+		return (0);
+	move_enemies((map->map[new_y][new_x] == 'M'), map);
+	update_position(map, new_x, new_y);
+	if (map->player_x == map->exit_x && map->player_y == map->exit_y
+		&& map->collectibles == 0)
+	{
+		map->game_over = 1;
+		ft_printf("You won in %d moves!\n", map->moves);
+	}
+	game_update(map);
+	return (1);
+}

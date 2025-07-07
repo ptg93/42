@@ -89,4 +89,3 @@ void	exit_msg(const char *msg, t_map *map)
 	else
 		exit(EXIT_SUCCESS);
 }
-
