@@ -30,10 +30,10 @@ int	ft_get_min_pos(int *a, int len, int nulint)
 	return (-1);
 }
 
-int	create_nulint (int *a, int len)
+int	create_nulint(int *a, int len)
 {
-	int i;
-	int nulint;
+	int	i;
+	int	nulint;
 
 	nulint = INT_MIN;
 	while (1)
@@ -42,13 +42,12 @@ int	create_nulint (int *a, int len)
 		while (i < len)
 		{
 			if (a[i] == nulint)
-				break;
+				break ;
 			i++;
 		}
 		if (i == len)
-			break;
+			break ;
 		nulint++;
-		
 	}
 	return (nulint);
 }
@@ -63,15 +62,14 @@ int	*normalize_arr(int *a, int len)
 	nulint = create_nulint(a, len);
 	b = malloc((len) * sizeof(int));
 	if (!b)
-		return (0);
+		return (NULL);
 	i = 0;
-	while(i < len)
+	while (i < len)
 	{
 		j = ft_get_min_pos(a, len, nulint);
 		b[j] = i;
 		a[j] = nulint;
 		i++;
 	}
-	free(a);
 	return (b);
 }

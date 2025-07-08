@@ -1,34 +1,5 @@
 #include "pushswap.h"
 
-int	check_order(int *a)
-{
-	int	i;
-
-	i = 0;
-	while (a[i])
-		i++;
-	while (i > 0)
-	{
-		if (!(a[i] > a[i - 1]))
-			return (0);
-		i--;
-	}
-	return (1);
-}
-
-int	check_order_stack(t_list *stack)
-{
-	if (!stack)
-		return (1);
-	while (stack->next)
-	{
-		if (*((int *)stack->next->content) <= *((int *)stack->content))
-			return (0);
-		stack = stack->next;
-	}
-	return (1);
-}
-
 int	check_int_range(const char *str)
 {
 	long	result;
@@ -63,33 +34,18 @@ int	check_digits(char **argv)
 	i = 0;
 	while (argv[i])
 	{
+		if (!argv[i][0])
+			return (1);
 		j = 0;
+		if (argv[i][j] == '-' || argv[i][j] == '+')
+		{
+			j++;
+			if (!argv[i][j])
+				return (1);
+		}
 		while (argv[i][j])
 		{
-    		if (!ft_isdigit(argv[i][j]))
-			{
-				if(!(j == 0 && (argv[i][j] == '-' || argv[i][j] == '+')))
-        			return (1);
-			}
-    		j++;
-		}
-		i++;
-	}
-	return (0);
-}
-	
-int	check_duplicates(char **argv)
-{
-	int	i;
-	int	j;
-
-	i = 1;
-	while (argv[i])
-	{
-		j = 1;
-		while (j < i)
-		{
-			if (ft_strncmp(argv[i], argv[j], 11))
+			if (!ft_isdigit(argv[i][j]))
 				return (1);
 			j++;
 		}
@@ -97,17 +53,41 @@ int	check_duplicates(char **argv)
 	}
 	return (0);
 }
-	
+
+int	check_duplicates(char **argv)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (argv[i])
+	{
+		if (check_int_range(argv[i]))
+			return (1);
+		j = 0;
+		while (j < i)
+		{
+			if (check_int_range(argv[j]))
+				return (1);
+			if (ft_atoi(argv[i]) == ft_atoi(argv[j]))
+				return (1);
+			j++;
+		}
+		i++;
+	}
+	return (0);
+}
+
 int	check_error(char **argv)
 {
 	int	i;
 
 	if (check_digits(argv) || check_duplicates(argv))
 		return (1);
-	i = 1;
+	i = 0;
 	while (argv[i])
 	{
-		if(check_int_range(argv[i]))
+		if (check_int_range(argv[i]))
 			return (1);
 		i++;
 	}
