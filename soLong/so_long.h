@@ -72,6 +72,8 @@ typedef struct s_map
 	int			exit_count;
 	int			dx[4];
 	int			dy[4];
+	int			player_prev_x;
+	int			player_prev_y;
 	t_textures	textures;
 	t_enemy		*enemies;
 }	t_map;
@@ -85,7 +87,7 @@ void	draw_map(t_map *map);
 void	game_update(t_map *map);
 void	check_game_over(int type, t_map *map);
 int		move_player(t_map *map, int dx, int dy);
-void	move_enemies(int danger, t_map *map);
+void	move_enemies(t_map *map);
 int		pseudo_random(int seed);
 void	display_score(t_map *map);
 int		check_map(char **argv, t_map *map);
