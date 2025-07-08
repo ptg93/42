@@ -81,7 +81,7 @@ typedef struct s_map
 void	exit_msg(const char *msg, t_map *map);
 int		handle_close(void *param);
 void	free_all_textures(t_map *map);
-void	free_map(char **map);
+void	free_map(t_map *map);
 int		load_game(t_map *map);
 void	draw_map(t_map *map);
 void	game_update(t_map *map);

@@ -32,9 +32,10 @@ char	*ft_itoa(int n)
 	char			*s;
 	size_t			len;
 	unsigned int	num;
+	size_t			i;
 
 	len = get_num_len(n);
-	s = (char *)malloc((len + 1) * sizeof(char));
+	s = malloc(len + 1);
 	if (!s)
 		return (NULL);
 	s[len] = '\0';
@@ -45,11 +46,11 @@ char	*ft_itoa(int n)
 	}
 	else
 		num = n;
-	while (len > 0 && s[len - 1] != '-')
+	i = len;
+	while (i-- > 0 && s[i] != '-')
 	{
-		s[len - 1] = (num % 10) + '0';
+		s[i] = (num % 10) + '0';
 		num /= 10;
-		len--;
 	}
 	return (s);
 }

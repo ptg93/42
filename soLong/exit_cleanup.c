@@ -51,19 +51,22 @@ void	free_all_textures(t_map *map)
 	}
 }
 
-void	free_map(char **map)
+void	free_map(t_map *map)
 {
 	int	i;
 
-	if (!map)
+	if (!map->map)
 		return ;
 	i = 0;
-	while (map[i])
+	while (map->map[i])
 	{
-		free(map[i]);
+		free(map->map[i]);
 		i++;
 	}
-	free(map);
+	free(map->map);
+	i = 0;
+	if (map->enemies)
+		free(map->enemies);
 }
 
 void	exit_msg(const char *msg, t_map *map)
@@ -71,7 +74,7 @@ void	exit_msg(const char *msg, t_map *map)
 	if (map)
 	{
 		if (map->map)
-			free_map(map->map);
+			free_map(map);
 		if (map->mlx)
 		{
 			free_all_textures(map);
