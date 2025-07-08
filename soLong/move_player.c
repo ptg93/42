@@ -31,17 +31,6 @@ static void	check_collectibles(t_map *map, int new_x, int new_y)
 		ft_printf("Collectible found! Remaining: %d\n", map->collectibles);
 	}
 }
-/*
-static int	check_enemy_collision(t_map *map, int new_x, int new_y)
-{
-	if (map->map[new_y][new_x] == 'M')
-	{
-		map->game_over = 2;
-		ft_printf("You were caught by an enemy!\n");
-		return (1);
-	}
-	return (0);
-} */
 
 int	move_player(t_map *map, int dx, int dy)
 {
@@ -55,8 +44,6 @@ int	move_player(t_map *map, int dx, int dy)
 	if (!is_valid_move(map, new_x, new_y))
 		return (0);
 	check_collectibles(map, new_x, new_y);
-	/*if (check_enemy_collision(map, new_x, new_y))
-		return (0); */
 	update_position(map, new_x, new_y);
 	move_enemies(map);
 	if (map->player_x == map->exit_x && map->player_y == map->exit_y
