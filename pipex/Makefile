@@ -6,7 +6,7 @@ LIBFT_DIR	= ./libft
 LIBFT		= $(LIBFT_DIR)/libft.a
 HEADER		= pipex.h
 
-SRCS		= main.c run_command.c cleanup.c get_path.c
+SRCS		= main.c run_command.c cleanup.c get_path.c parse_command.c
 OBJS		= $(SRCS:.c=.o)
 
 BONUS_DIR	= ./bonus

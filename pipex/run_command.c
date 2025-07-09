@@ -17,7 +17,7 @@ static void	execute_command(char *arg, char **envp)
 	char	**cmd;
 	char	*path;
 
-	cmd = ft_split(arg, ' ');
+	cmd = ft_split_quotes(arg);
 	if (!cmd || !cmd[0])
 		error_message("invalid command");
 	path = get_path(cmd[0], envp);
