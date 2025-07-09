@@ -12,10 +12,10 @@
 
 #include "so_long.h"
 #include <fcntl.h>
-#include <stdio.h>  // For perror
-#include <unistd.h> // For close
-#include <stdlib.h> // For exit
-#include <string.h> // For strerror
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 int	handle_close(void *param)
 {
@@ -36,15 +36,10 @@ void	free_all_textures(t_map *map)
 	if (map->textures.exit.img)
 		mlx_destroy_image(map->mlx, map->textures.exit.img);
 	i = 0;
-	while (map->textures.player[i].img && i < 2)
+	while (i < 2)
 	{
 		if (map->textures.player[i].img)
 			mlx_destroy_image(map->mlx, map->textures.player[i].img);
-		i++;
-	}
-	i = 0;
-	while (map->textures.enemy[i].img && i < 2)
-	{
 		if (map->textures.enemy[i].img)
 			mlx_destroy_image(map->mlx, map->textures.enemy[i].img);
 		i++;

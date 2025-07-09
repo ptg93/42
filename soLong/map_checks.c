@@ -42,14 +42,25 @@ static int	count_lines(char *file_name)
 	return (line_count);
 }
 
+static void	process_line(char *line, t_map *map, int i)
+{
+	size_t	len;
+
+	len = ft_strlen(line);
+	if (len > 0 && line[len - 1] == '\n')
+		line[len - 1] = '\0';
+	map->map[i] = line;
+}
+
 static void	get_map_lines(char *file_name, t_map *map)
 {
 	int		fd;
 	int		i;
 	char	*line;
-	size_t	len;
+	int		line_count;
 
-	map->map = malloc(sizeof(char *) * (count_lines(file_name) + 1));
+	line_count = count_lines(file_name);
+	map->map = malloc(sizeof(char *) * (line_count + 1));
 	if (!map->map)
 		exit_msg("Error: Memory allocation failed", map);
 	fd = open(file_name, O_RDONLY);
@@ -57,12 +68,10 @@ static void	get_map_lines(char *file_name, t_map *map)
 		exit_msg("Error reopening map file", map);
 	i = 0;
 	line = get_next_line(fd);
-	while (line)
+	while (line && i < line_count)
 	{
-		len = ft_strlen(line);
-		if (len > 0 && line[len - 1] == '\n')
-			line[len - 1] = '\0';
-		map->map[i++] = line;
+		process_line(line, map, i);
+		i++;
 		line = get_next_line(fd);
 	}
 	map->map[i] = NULL;
@@ -87,8 +96,6 @@ int	check_map(char **argv, t_map *map)
 			exit_msg("Error: Memory allocation for enemies failed", map);
 		ft_printf("Enemies found and allocated: %d\n", map->enemy_count);
 	}
-	else
-		map->enemies = NULL;
 	if (!validate_map(map))
 		exit_msg("Error: Invalid map", map);
 	return (1);

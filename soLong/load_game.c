@@ -13,7 +13,8 @@ static void	load_basic_textures(t_map *map)
 	if (!map->textures.floor.img)
 		exit_msg("Error loading floor texture", map);
 	map->textures.collectible.img = mlx_xpm_file_to_image(map->mlx,
-			"textures/collectible.xpm", &map->textures.collectible.width,
+			"textures/collectible.xpm",
+			&map->textures.collectible.width,
 			&map->textures.collectible.height);
 	if (!map->textures.collectible.img)
 		exit_msg("Error loading collectible texture", map);
@@ -52,7 +53,7 @@ static void	load_enemy_textures(t_map *map)
 		exit_msg("Error loading enemy texture", map);
 }
 
-void	load_textures(t_map *map)
+static void	load_textures(t_map *map)
 {
 	load_basic_textures(map);
 	load_player_textures(map);

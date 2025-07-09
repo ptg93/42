@@ -11,8 +11,7 @@ static int	is_valid_move(t_map *map, int x, int y)
 
 static void	update_position(t_map *map, int new_x, int new_y)
 {
-	if (map->map[map->player_y][map->player_x]
-	== map->map[map->exit_y][map->exit_x])
+	if (map->player_x == map->exit_x && map->player_y == map->exit_y)
 		map->map[map->player_y][map->player_x] = 'E';
 	else
 		map->map[map->player_y][map->player_x] = '0';

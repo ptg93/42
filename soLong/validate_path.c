@@ -2,7 +2,9 @@
 
 void	dfs(int x, int y, char **copy, t_map *map)
 {
-	if (y < 0 || x < 0 || !copy[y] || !copy[y][x])
+	if (y < 0 || x < 0 || y >= map->height || x >= map->width)
+		return ;
+	if (!copy[y] || !copy[y][x])
 		return ;
 	if (copy[y][x] == '1' || copy[y][x] == 'X' || copy[y][x] == 'M')
 		return ;

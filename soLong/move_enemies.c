@@ -5,8 +5,10 @@ void	update_enemy_position(t_map *map, int i, int new_x, int new_y)
 	t_enemy	*enemy;
 
 	enemy = &map->enemies[i];
-	if (map->map[enemy->y][enemy->x] == 'P' && !map->game_over)
+	if (enemy->x == map->player_x && enemy->y == map->player_y)
 		map->map[enemy->y][enemy->x] = 'P';
+	else if (enemy->x == map->exit_x && enemy->y == map->exit_y)
+		map->map[enemy->y][enemy->x] = 'E';
 	else
 		map->map[enemy->y][enemy->x] = '0';
 	map->map[new_y][new_x] = 'M';
