@@ -32,6 +32,7 @@ typedef struct s_pipex
 void	error_message(const char *msg);
 char	*get_path(char *cmd, char **envp);
 char	**ft_split(char const *s, char c);
+char	**ft_split_quotes(char *str);
 void	ft_free_split(char **arr);
 void	run_command(t_pipex *d, char *arg, char **envp, int idx);
 

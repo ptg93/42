@@ -69,7 +69,11 @@ int	main(int argc, char *argv[], char *envp[])
 	t_pipex	data;
 
 	if (argc < 5)
-		error_message("Usage: ./pipex infile cmd1 cmd2 [...] outfile");
+	{
+		ft_putstr_fd("Error: Minimum usage: ", 2);
+		ft_putstr_fd("./pipex_bonus infile cmd1 cmd2 outfile\n", 2);
+		return (1);
+	}
 	data.infile = open(argv[1], O_RDONLY);
 	data.outfile = open(argv[argc - 1],
 			O_CREAT | O_WRONLY | O_TRUNC, 0644);
