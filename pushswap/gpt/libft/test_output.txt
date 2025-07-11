@@ -1,2 +1,0 @@
-AHello, World!Hello, 42!
--12345
