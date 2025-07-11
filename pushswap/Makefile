@@ -1,23 +1,28 @@
-NAME = pushswap
+NAME = push_swap
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Ilibft -Ift_printf
+CFLAGS = -Wall -Wextra -Werror -Ilibft -Ift_printf -Isrc
 
-SRCDIR = .
-OBJDIR = .
+SRCDIR = src
+OBJDIR = obj
 
 SOURCES = push_swap_main.c \
 		  operations.c \
-		  operations_print_1.c \
-		  operations_print_2.c \
+		  operations_commands.c \
+		  operations_rotate.c \
+		  operations_reverse_rotate.c \
 		  sort_small.c \
+		  sort_medium.c \
+		  sort_medium_utils.c \
+		  sort_medium_moves.c \
 		  sort_large.c \
 		  utils.c \
 		  checks_validation.c \
 		  checks_utils.c \
 		  normalize_arr.c
 
-OBJECTS = $(SOURCES:.c=.o)
+SRC_FILES = $(addprefix $(SRCDIR)/, $(SOURCES))
+OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:.c=.o))
 
 LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
@@ -27,10 +32,13 @@ PRINTF = $(PRINTF_DIR)/libftprintf.a
 
 all: $(NAME)
 
-$(NAME): $(OBJECTS) $(LIBFT) $(PRINTF)
+$(NAME): $(OBJDIR) $(OBJECTS) $(LIBFT) $(PRINTF)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJECTS) $(LIBFT) $(PRINTF)
 
-%.o: %.c
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT):
@@ -40,7 +48,7 @@ $(PRINTF):
 	$(MAKE) -C $(PRINTF_DIR)
 
 clean:
-	rm -f $(OBJECTS)
+	rm -rf $(OBJDIR)
 	$(MAKE) -C $(LIBFT_DIR) clean
 	$(MAKE) -C $(PRINTF_DIR) clean
 
