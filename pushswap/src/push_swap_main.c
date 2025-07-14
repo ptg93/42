@@ -63,7 +63,7 @@ void	execute_push_swap(int *array, int len)
 	if (len <= 5)
 		sort_small_sets(&stack_a, &stack_b, len);
 	else if (len <= 200)
-		sort_medium_algorithm(&stack_a, &stack_b, len);
+		sort_medium_algorithm(&stack_a, &stack_b, len, normalized);
 	else
 		sort_large_algorithm(&stack_a, &stack_b, len);
 	cleanup_memory(array, normalized, &stack_a, &stack_b);

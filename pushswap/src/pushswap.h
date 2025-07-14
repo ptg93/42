@@ -53,8 +53,9 @@ void	sort_five_elements(t_list **stack_a, t_list **stack_b);
 void	sort_small_sets(t_list **stack_a, t_list **stack_b, int len);
 
 /* Medium set sorting algorithm (chunk-based) */
-void	sort_medium_algorithm(t_list **stack_a, t_list **stack_b, int size);
-int		*get_sorted_array(t_list *stack_a, int size);
+int		*copy_array(int *array_a, int size);
+void	sort_medium_algorithm(t_list **stack_a, t_list **stack_b, int size,
+			int *norm);
 void	sort_array(int *array, int size);
 int		find_chunk_position_top(t_list *stack_a, int min, int max);
 int		find_chunk_position_bottom(t_list *stack_a, int min, int max);

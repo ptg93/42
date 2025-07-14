@@ -1,23 +1,20 @@
 #include "pushswap.h"
 
-int	*get_sorted_array(t_list *stack_a, int size)
+int	*copy_array(int *array_a, int size)
 {
-	int		*array;
+	int		*array_b;
 	int		i;
-	t_list	*node;
 
-	array = (int *)malloc(sizeof(int) * size);
-	if (!array)
+	array_b = malloc(sizeof(int) * (size));
+	if (!array_b)
 		return (NULL);
-	node = stack_a;
 	i = 0;
 	while (i < size)
 	{
-		array[i] = *(int *)node->content;
-		node = node->next;
+		array_b[i] = array_a[i];
 		i++;
 	}
-	return (array);
+	return (array_b);
 }
 
 void	sort_array(int *array, int size)

@@ -1,6 +1,7 @@
 #include "pushswap.h"
 
-void	sort_medium_algorithm(t_list **stack_a, t_list **stack_b, int size)
+void	sort_medium_algorithm(t_list **stack_a, t_list **stack_b, int size,
+		int *norm)
 {
 	int		*sorted;
 	int		chunk_size;
@@ -8,9 +9,9 @@ void	sort_medium_algorithm(t_list **stack_a, t_list **stack_b, int size)
 	int		upper;
 	t_chunk	chunk;
 
-	sorted = get_sorted_array(*stack_a, size);
-	if (!sorted)
+	if (check_order_stack(*stack_a))
 		return ;
+	sorted = copy_array(norm, size);
 	sort_array(sorted, size);
 	chunk_size = 11;
 	lower = 0;

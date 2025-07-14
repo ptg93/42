@@ -60,6 +60,8 @@ void	sort_large_algorithm(t_list **stack_a, t_list **stack_b, int len)
 		sort_small_sets(stack_a, stack_b, len);
 		return ;
 	}
+	if (check_order_stack(*stack_a))
+		return ;
 	max_value = find_max_value(*stack_a);
 	max_bits = get_max_bits(max_value);
 	bit = 0;
